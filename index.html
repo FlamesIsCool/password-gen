@@ -2044,9 +2044,166 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
             const passwordDisplay = document.getElementById('password-display');
             const lengthSlider = document.getElementById('length-slider');
             const lengthValue = document.getElementById('length-value');
             const lengthTrack = document.getElementById('length-track');
-            const length<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9533bb6ae03447ad',t:'MTc1MDUxMTI3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+
+            const uppercaseEl = document.getElementById('uppercase');
+            const lowercaseEl = document.getElementById('lowercase');
+            const numbersEl = document.getElementById('numbers');
+            const symbolsEl = document.getElementById('symbols');
+
+            const excludeSimilarEl = document.getElementById('exclude-similar');
+            const excludeAmbiguousEl = document.getElementById('exclude-ambiguous');
+            const includeOneEachEl = document.getElementById('include-one-each');
+            const customCharsEl = document.getElementById('custom-chars');
+
+            const generateBtn = document.getElementById('generate-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            const passwordHistory = document.getElementById('password-history');
+
+            const strengthMeter = document.getElementById('strength-meter');
+            const strengthBadge = document.getElementById('strength-badge');
+            const crackTime = document.getElementById('crack-time');
+            const entropyDisplay = document.getElementById('entropy');
+            const lengthDisplay = document.getElementById('length-display');
+
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notification-message');
+
+            function updateSlider() {
+                const val = lengthSlider.value;
+                lengthValue.textContent = val;
+                lengthTrack.style.width = ((val - lengthSlider.min) / (lengthSlider.max - lengthSlider.min)) * 100 + '%';
+                lengthDisplay.textContent = val;
+            }
+
+            lengthSlider.addEventListener('input', updateSlider);
+            updateSlider();
+
+            function buildCharset() {
+                let chars = '';
+                if (uppercaseEl.checked) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                if (lowercaseEl.checked) chars += 'abcdefghijklmnopqrstuvwxyz';
+                if (numbersEl.checked) chars += '0123456789';
+                if (symbolsEl.checked) chars += "!@#$%^&*()-_=+[]{}|;:'\",.<>/?";
+                chars += customCharsEl.value;
+
+                if (excludeSimilarEl && excludeSimilarEl.checked) {
+                    chars = chars.replace(/[ilLIoO0]/g, '');
+                }
+                if (excludeAmbiguousEl && excludeAmbiguousEl.checked) {
+                    chars = chars.replace(/[{}\[\]()\/\'"`~,;:.<>]/g, '');
+                }
+                return chars;
+            }
+
+            function shuffle(str) {
+                return str.split('').sort(() => Math.random() - 0.5).join('');
+            }
+
+            function estimateCrackTime(charsetSize, length) {
+                const guesses = Math.pow(charsetSize, length);
+                const guessesPerSec = 1e9;
+                const seconds = guesses / guessesPerSec;
+                if (seconds < 1) return 'Instantly';
+                const units = [
+                    {label: 'year', value: 31536000},
+                    {label: 'day', value: 86400},
+                    {label: 'hour', value: 3600},
+                    {label: 'minute', value: 60}
+                ];
+                for (const u of units) {
+                    if (seconds >= u.value) {
+                        const val = Math.floor(seconds / u.value);
+                        return val + ' ' + u.label + (val > 1 ? 's' : '');
+                    }
+                }
+                return Math.floor(seconds) + 's';
+            }
+
+            function updateStrength(password, charsetSize) {
+                let score = 0;
+                if (password.length >= 12) score++;
+                if (/[A-Z]/.test(password)) score++;
+                if (/[a-z]/.test(password)) score++;
+                if (/[0-9]/.test(password)) score++;
+                if (/[^A-Za-z0-9]/.test(password)) score++;
+
+                const labels = ['Very Weak', 'Weak', 'Moderate', 'Strong', 'Very Strong'];
+                const classes = ['badge-very-weak', 'badge-weak', 'badge-moderate', 'badge-strong', 'badge-very-strong'];
+
+                strengthBadge.textContent = labels[score];
+                strengthBadge.className = 'badge ' + classes[score];
+                strengthMeter.style.width = ((score + 1) / 5) * 100 + '%';
+
+                const entropy = Math.log2(Math.pow(charsetSize, password.length));
+                entropyDisplay.textContent = Math.floor(entropy) + ' bits';
+                crackTime.textContent = estimateCrackTime(charsetSize, password.length);
+            }
+
+            function addToHistory(password) {
+                const empty = passwordHistory.querySelector('.empty-state');
+                if (empty) empty.remove();
+
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.textContent = password;
+                passwordHistory.prepend(item);
+            }
+
+            function generatePassword() {
+                const charset = buildCharset();
+                if (!charset) return;
+
+                let length = parseInt(lengthSlider.value, 10);
+                let password = '';
+
+                const sets = [];
+                if (includeOneEachEl && includeOneEachEl.checked) {
+                    if (uppercaseEl.checked) sets.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+                    if (lowercaseEl.checked) sets.push('abcdefghijklmnopqrstuvwxyz');
+                    if (numbersEl.checked) sets.push('0123456789');
+                    if (symbolsEl.checked) sets.push("!@#$%^&*()-_=+[]{}|;:'\",.<>/?");
+                    if (customCharsEl.value) sets.push(customCharsEl.value);
+                    for (const set of sets) {
+                        password += set[Math.floor(Math.random() * set.length)];
+                        length--;
+                    }
+                }
+
+                for (let i = 0; i < length; i++) {
+                    password += charset[Math.floor(Math.random() * charset.length)];
+                }
+
+                password = shuffle(password);
+                passwordDisplay.textContent = password;
+                updateStrength(password, charset.length);
+                addToHistory(password);
+            }
+
+            function showNotification(msg) {
+                notificationMessage.textContent = msg;
+                notification.classList.add('show');
+                setTimeout(() => notification.classList.remove('show'), 2000);
+            }
+
+            generateBtn.addEventListener('click', generatePassword);
+
+            copyBtn.addEventListener('click', () => {
+                const pwd = passwordDisplay.textContent;
+                if (!pwd) return;
+                navigator.clipboard.writeText(pwd).then(() => showNotification('Password copied to clipboard!'));
+            });
+
+            if (clearHistoryBtn) {
+                clearHistoryBtn.addEventListener('click', () => {
+                    passwordHistory.innerHTML = '<div class="empty-state"><div class="empty-icon"><i class="fas fa-history"></i></div><h3 class="font-medium mb-2">No passwords yet</h3><p class="text-sm text-gray-400">Generated passwords will appear here</p></div>';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
