@@ -1,0 +1,2052 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecurePass Pro | Advanced Password Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #a78bfa;
+            --secondary: #06b6d4;
+            --secondary-dark: #0891b2;
+            --accent: #f43f5e;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .bg-gradient {
+            background: radial-gradient(circle at top right, #4c1d95, #1e1b4b, #0f172a);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+        }
+        
+        .bg-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.4;
+            z-index: -2;
+        }
+        
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+        }
+        
+        .bg-glow {
+            position: fixed;
+            top: -50%;
+            right: -10%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .bg-glow-2 {
+            position: fixed;
+            bottom: -20%;
+            left: -10%;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.2),
+                0 10px 10px -5px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 255, 255, 0) 100%);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 25px 30px -5px rgba(0, 0, 0, 0.3),
+                0 15px 15px -5px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.07);
+        }
+        
+        .card-header {
+            position: relative;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2), 0 2px 4px -1px rgba(139, 92, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3), 0 4px 6px -2px rgba(139, 92, 246, 0.2);
+        }
+        
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-icon:hover::after {
+            opacity: 1;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+        
+        .slider::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider::after {
+            opacity: 1;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        .range-slider-container {
+            position: relative;
+            padding: 10px 0;
+        }
+        
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: 2px solid white;
+            transition: all 0.2s ease;
+        }
+        
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.2);
+        }
+        
+        .range-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: 2px solid white;
+            transition: all 0.2s ease;
+        }
+        
+        .range-slider::-moz-range-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.2);
+        }
+        
+        .range-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 6px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: translateY(-50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--dark);
+            padding: 12px 24px;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 100;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        .strength-meter-container {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .strength-meter {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease, background-color 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .strength-meter::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.2) 50%, 
+                rgba(255, 255, 255, 0.1) 100%);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .password-display-container {
+            position: relative;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .password-display-container:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
+        }
+        
+        .password-display-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%);
+            z-index: -1;
+        }
+        
+        .password-display {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(255, 255, 255, 0.1);
+            min-height: 2.5rem;
+        }
+        
+        .password-display::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .password-display::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+        
+        .password-display::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .password-char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .option-card {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-card:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .option-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .option-card:hover::after {
+            opacity: 1;
+        }
+        
+        .history-item {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .history-item:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .history-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .history-item.very-weak::before { background-color: #ef4444; }
+        .history-item.weak::before { background-color: #f97316; }
+        .history-item.moderate::before { background-color: #eab308; }
+        .history-item.strong::before { background-color: #10b981; }
+        .history-item.very-strong::before { background-color: #8b5cf6; }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 255, 255, 0) 100%);
+            animation: shimmer 2s infinite;
+        }
+        
+        .badge-very-weak { background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .badge-weak { background-color: rgba(249, 115, 22, 0.2); color: #fdba74; }
+        .badge-moderate { background-color: rgba(234, 179, 8, 0.2); color: #fde047; }
+        .badge-strong { background-color: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+        .badge-very-strong { background-color: rgba(139, 92, 246, 0.2); color: #c4b5fd; }
+        
+        .tip-card {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tip-card:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .tip-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .tip-card:hover::after {
+            opacity: 1;
+        }
+        
+        .tip-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tip-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 1rem;
+        }
+        
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.03;
+            animation: float 15s infinite linear;
+        }
+        
+        .shape-1 {
+            top: 10%;
+            left: 10%;
+            width: 100px;
+            height: 100px;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            background-color: var(--primary);
+            animation-duration: 25s;
+        }
+        
+        .shape-2 {
+            top: 60%;
+            left: 80%;
+            width: 150px;
+            height: 150px;
+            border-radius: 58% 42% 38% 62% / 42% 55% 45% 58%;
+            background-color: var(--secondary);
+            animation-duration: 30s;
+            animation-delay: 2s;
+        }
+        
+        .shape-3 {
+            top: 80%;
+            left: 20%;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            animation-duration: 20s;
+            animation-delay: 4s;
+        }
+        
+        .shape-4 {
+            top: 30%;
+            left: 60%;
+            width: 80px;
+            height: 80px;
+            border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+            background-color: var(--accent);
+            opacity: 0.02;
+            animation-duration: 22s;
+            animation-delay: 1s;
+        }
+        
+        .shape-5 {
+            top: 15%;
+            left: 75%;
+            width: 60px;
+            height: 60px;
+            border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
+            background-color: var(--secondary-dark);
+            opacity: 0.02;
+            animation-duration: 18s;
+            animation-delay: 3s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(100px, 50px) rotate(90deg);
+            }
+            50% {
+                transform: translate(50px, 100px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-50px, 50px) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+        
+        .glow-button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .glow-button:hover::after {
+            opacity: 1;
+        }
+        
+        .header-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(139, 92, 246, 0) 0%, 
+                rgba(139, 92, 246, 0.1) 50%, 
+                rgba(139, 92, 246, 0) 100%);
+            animation: headerGlow 5s infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes headerGlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .footer {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 255, 255, 0) 100%);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+        }
+        
+        .feature-card {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tab-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            color: var(--light);
+        }
+        
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .tab.active::after {
+            transform: scaleX(1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .password-strength-details {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .password-strength-details:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .strength-detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .strength-detail-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .strength-detail-icon.success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+        
+        .strength-detail-icon.warning {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: #fde047;
+        }
+        
+        .strength-detail-icon.error {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+        
+        .strength-detail-text {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .password-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            flex: 1;
+            min-width: 120px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-label i {
+            margin-right: 0.5rem;
+            color: var(--primary-light);
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', monospace;
+        }
+        
+        .password-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .action-button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-button.primary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-light);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .action-button.primary:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .action-button.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .action-button.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .password-generator-header {
+            position: relative;
+            padding: 2rem 0;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .password-generator-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, rgba(15, 23, 42, 0) 70%);
+            z-index: -1;
+        }
+        
+        .password-generator-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #c4b5fd, #a78bfa, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+        
+        .password-generator-header p {
+            font-size: 1.125rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .password-generator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .password-generator-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+        
+        .password-generator-main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .password-generator-main {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .password-generator-footer {
+            margin-top: 3rem;
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .password-generator-footer p {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+        
+        .password-generator-footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .password-generator-footer a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .password-generator-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            margin: 0 auto 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .password-generator-logo::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+        }
+        
+        .password-generator-logo i {
+            font-size: 1.75rem;
+            color: white;
+            z-index: 1;
+        }
+        
+        .password-generator-logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+            animation: pulse 3s infinite;
+            z-index: 0;
+        }
+        
+        .password-generator-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.2),
+                0 10px 10px -5px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .password-generator-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                rgba(255, 255, 255, 0) 100%);
+        }
+        
+        .password-generator-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 25px 30px -5px rgba(0, 0, 0, 0.3),
+                0 15px 15px -5px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.07);
+        }
+        
+        .password-generator-card-header {
+            position: relative;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .password-generator-card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        .password-generator-card-body {
+            padding: 1.5rem;
+        }
+        
+        .password-generator-card-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.3);
+        }
+        
+        .password-generator-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .password-generator-card-title i {
+            color: var(--primary-light);
+        }
+        
+        .password-generator-card-description {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+        
+        .password-generator-card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-light);
+            margin-right: 0.75rem;
+        }
+        
+        .password-generator-card-icon i {
+            font-size: 1.25rem;
+        }
+        
+        .password-generator-card-content {
+            margin-top: 1.5rem;
+        }
+        
+        .password-generator-card-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        
+        .password-generator-card-action {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .password-generator-card-action.primary {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-light);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .password-generator-card-action.primary:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .password-generator-card-action.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .password-generator-card-action.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .password-generator-card-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .password-generator-card-stat {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .password-generator-card-stat:hover {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .password-generator-card-stat-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+        
+        .password-generator-card-stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', monospace;
+        }
+        
+        .password-generator-card-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 1.5rem 0;
+        }
+        
+        .password-generator-card-list {
+            margin-top: 1.5rem;
+        }
+        
+        .password-generator-card-list-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .password-generator-card-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .password-generator-card-list-item-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--primary-light);
+            margin-right: 0.75rem;
+        }
+        
+        .password-generator-card-list-item-content {
+            flex: 1;
+        }
+        
+        .password-generator-card-list-item-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .password-generator-card-list-item-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .password-generator-card-list-item-action {
+            margin-left: 0.75rem;
+        }
+        
+        .password-generator-card-list-item-action button {
+            background: none;
+            border: none;
+            color: var(--primary-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .password-generator-card-list-item-action button:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .password-generator-card-form {
+            margin-top: 1.5rem;
+        }
+        
+        .password-generator-card-form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .password-generator-card-form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .password-generator-card-form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .password-generator-card-form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+        
+        .password-generator-card-form-input::placeholder {
+            color: var(--gray);
+        }
+        
+        .password-generator-card-form-submit {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .password-generator-card-form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3), 0 4px 6px -2px rgba(139, 92, 246, 0.2);
+        }
+        
+        .password-generator-card-form-footer {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray);
+            text-align: center;
+        }
+        
+        .password-generator-card-form-footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .password-generator-card-form-footer a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        
+        .password-generator-card-form-error {
+            color: var(--accent);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .password-generator-card-form-success {
+            color: #10b981;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .password-generator-card-form-info {
+            color: var(--primary-light);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .password-generator-card-form-warning {
+            color: #f59e0b;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .password-generator-card-form-help {
+            color: var(--gray);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        
+        .password-generator-card-form-group-inline {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .password-generator-card-form-group-inline > * {
+            flex: 1;
+        }
+        
+        .password-generator-card-form-group-inline-label {
+            flex: 0 0 auto;
+            width: 100px;
+        }
+        
+        .password-generator-card-form-group-inline-input {
+            flex: 1;
+        }
+        
+        .password-generator-card-form-group-inline-action {
+            flex: 0 0 auto;
+        }
+        
+        .password-generator-card-form-group-inline-action button {
+            background: none;
+            border: none;
+            color: var(--primary-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .password-generator-card-form-group-inline-action button:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .password-generator-card-form-group-inline-action button i {
+            font-size: 1.25rem;
+        }
+        
+        .password-generator-card-form-group-inline-action button:disabled {
+            color: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .password-generator-card-form-group-inline-action button:disabled:hover {
+            transform: none;
+        }
+        
+        .password-generator-card-form-group-inline-action button:disabled i {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-gradient"></div>
+    <div class="bg-noise"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+    
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+    </div>
+    
+    <div class="password-generator-container">
+        <!-- Header -->
+        <div class="password-generator-header">
+            <div class="password-generator-logo">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h1>SecurePass Pro</h1>
+            <p>Generate strong, secure passwords with advanced customization options and security analysis</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="password-generator-main">
+            <!-- Left Column - Password Generator -->
+            <div>
+                <div class="password-generator-card mb-6">
+                    <div class="password-generator-card-header">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="password-generator-card-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div>
+                                    <h2 class="password-generator-card-title">Password Generator</h2>
+                                    <p class="password-generator-card-description">Create secure, customized passwords instantly</p>
+                                </div>
+                            </div>
+                            <button id="regenerate-btn" class="btn-icon glow-button" title="Generate New Password">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="header-glow"></div>
+                    </div>
+                    
+                    <div class="password-generator-card-body">
+                        <!-- Password Display -->
+                        <div class="password-display-container">
+                            <div id="password-display" class="password-display"></div>
+                            <div class="strength-meter-container mt-3">
+                                <div id="strength-meter" class="strength-meter" style="width: 0%; background-color: #ef4444;"></div>
+                            </div>
+                            <div class="flex items-center justify-between mt-2">
+                                <div id="strength-label" class="text-sm font-medium text-gray-400">Password Strength</div>
+                                <div id="strength-badge" class="badge badge-very-weak">Very Weak</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Actions -->
+                        <div class="password-actions">
+                            <div id="copy-btn" class="action-button primary">
+                                <i class="far fa-copy"></i>
+                                <span>Copy</span>
+                            </div>
+                            <div id="save-btn" class="action-button secondary">
+                                <i class="far fa-save"></i>
+                                <span>Save</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Stats -->
+                        <div class="password-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-clock"></i>
+                                    Crack Time
+                                </div>
+                                <div id="crack-time" class="stat-value">Instantly</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-dice"></i>
+                                    Entropy
+                                </div>
+                                <div id="entropy" class="stat-value">0 bits</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <i class="fas fa-text-width"></i>
+                                    Length
+                                </div>
+                                <div id="length-display" class="stat-value">0</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Password Options -->
+                        <div class="tab-container mt-6">
+                            <div class="tab active" data-tab="options">Options</div>
+                            <div class="tab" data-tab="advanced">Advanced</div>
+                            <div class="tab" data-tab="analysis">Analysis</div>
+                        </div>
+                        
+                        <!-- Tab Content -->
+                        <div id="options-tab" class="tab-content active">
+                            <!-- Length Option -->
+                            <div class="option-card">
+                                <div class="flex items-center justify-between mb-3">
+                                    <label for="length-slider" class="font-medium">Password Length</label>
+                                    <span id="length-value" class="text-sm font-mono bg-opacity-20 bg-purple-500 text-purple-300 px-2 py-1 rounded">12</span>
+                                </div>
+                                <div class="range-slider-container">
+                                    <div id="length-track" class="range-track" style="width: 25%;"></div>
+                                    <input type="range" id="length-slider" class="range-slider" min="4" max="64" value="12">
+                                </div>
+                            </div>
+                            
+                            <!-- Character Types -->
+                            <div class="option-card">
+                                <h3 class="font-medium mb-3">Character Types</h3>
+                                
+                                <div class="flex items-center justify-between mb-3">
+                                    <label for="uppercase" class="flex items-center">
+                                        <i class="fas fa-font text-purple-400 mr-2"></i>
+                                        Uppercase Letters
+                                    </label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="uppercase" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mb-3">
+                                    <label for="lowercase" class="flex items-center">
+                                        <i class="fas fa-font text-sm text-cyan-400 mr-2"></i>
+                                        Lowercase Letters
+                                    </label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="lowercase" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mb-3">
+                                    <label for="numbers" class="flex items-center">
+                                        <i class="fas fa-hashtag text-green-400 mr-2"></i>
+                                        Numbers
+                                    </label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="numbers" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <label for="symbols" class="flex items-center">
+                                        <i class="fas fa-at text-amber-400 mr-2"></i>
+                                        Special Characters
+                                    </label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="symbols" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Generate Button -->
+                            <button id="generate-btn" class="btn-primary w-full mt-4 pulse">
+                                <i class="fas fa-bolt mr-2"></i>
+                                Generate Password
+                            </button>
+                        </div>
+                        
+                        <div id="advanced-tab" class="tab-content">
+                            <!-- Exclude Similar Characters -->
+                            <div class="option-card">
+                                <div class="flex items-center justify-between">
+                                    <label for="exclude-similar" class="flex items-center">
+                                        <i class="fas fa-not-equal text-purple-400 mr-2"></i>
+                                        Exclude Similar Characters
+                                        <span class="text-xs text-gray-400 ml-2">(i, l, 1, L, o, 0, O)</span>
+                                    </label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="exclude-similar">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Exclude Ambiguous Characters -->
+                            <div class="option-card">
+                                <div class="flex items-center justify-between">
+                                    <label for="exclude-ambiguous" class="flex items-center">
+                                        <i class="fas fa-ban text-red-400 mr-2"></i>
+                                        Exclude Ambiguous Characters
+                                        <span class="text-xs text-gray-400 ml-2">({ } [ ] ( ) / \ ' " ` ~ , ; : . < >)</span>
+                                    </label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="exclude-ambiguous">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Include at least one of each -->
+                            <div class="option-card">
+                                <div class="flex items-center justify-between">
+                                    <label for="include-one-each" class="flex items-center">
+                                        <i class="fas fa-check-double text-green-400 mr-2"></i>
+                                        Include at least one of each selected type
+                                    </label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="include-one-each" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom Characters -->
+                            <div class="option-card">
+                                <label for="custom-chars" class="font-medium mb-2 block">Custom Characters</label>
+                                <div class="flex items-center">
+                                    <input type="text" id="custom-chars" class="password-generator-card-form-input" placeholder="Add your own characters...">
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">Add specific characters you want to include in your password</p>
+                            </div>
+                        </div>
+                        
+                        <div id="analysis-tab" class="tab-content">
+                            <!-- Password Strength Details -->
+                            <div class="password-strength-details">
+                                <h3 class="font-medium mb-3">Password Strength Analysis</h3>
+                                
+                                <div id="strength-details">
+                                    <div class="strength-detail-item">
+                                        <div class="strength-detail-icon success">
+                                            <i class="fas fa-check text-xs"></i>
+                                        </div>
+                                        <div class="strength-detail-text">Password length is good (12+ characters)</div>
+                                    </div>
+                                    
+                                    <div class="strength-detail-item">
+                                        <div class="strength-detail-icon success">
+                                            <i class="fas fa-check text-xs"></i>
+                                        </div>
+                                        <div class="strength-detail-text">Contains uppercase letters</div>
+                                    </div>
+                                    
+                                    <div class="strength-detail-item">
+                                        <div class="strength-detail-icon success">
+                                            <i class="fas fa-check text-xs"></i>
+                                        </div>
+                                        <div class="strength-detail-text">Contains lowercase letters</div>
+                                    </div>
+                                    
+                                    <div class="strength-detail-item">
+                                        <div class="strength-detail-icon success">
+                                            <i class="fas fa-check text-xs"></i>
+                                        </div>
+                                        <div class="strength-detail-text">Contains numbers</div>
+                                    </div>
+                                    
+                                    <div class="strength-detail-item">
+                                        <div class="strength-detail-icon success">
+                                            <i class="fas fa-check text-xs"></i>
+                                        </div>
+                                        <div class="strength-detail-text">Contains special characters</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Time to Crack -->
+                            <div class="password-strength-details mt-4">
+                                <h3 class="font-medium mb-3">Time to Crack</h3>
+                                
+                                <div class="password-generator-card-stats">
+                                    <div class="password-generator-card-stat">
+                                        <div class="password-generator-card-stat-label">Desktop PC</div>
+                                        <div id="crack-time-pc" class="password-generator-card-stat-value">3 years</div>
+                                    </div>
+                                    
+                                    <div class="password-generator-card-stat">
+                                        <div class="password-generator-card-stat-label">Fast Server</div>
+                                        <div id="crack-time-server" class="password-generator-card-stat-value">2 months</div>
+                                    </div>
+                                    
+                                    <div class="password-generator-card-stat">
+                                        <div class="password-generator-card-stat-label">Quantum Computer</div>
+                                        <div id="crack-time-quantum" class="password-generator-card-stat-value">1 week</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Tips -->
+                <div class="password-generator-card">
+                    <div class="password-generator-card-header">
+                        <div class="flex items-center">
+                            <div class="password-generator-card-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div>
+                                <h2 class="password-generator-card-title">Password Security Tips</h2>
+                                <p class="password-generator-card-description">Best practices for keeping your accounts secure</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="password-generator-card-body">
+                        <div class="tip-card">
+                            <div class="tip-icon">
+                                <i class="fas fa-fingerprint"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium mb-1">Use unique passwords for each account</h3>
+                                <p class="text-sm text-gray-400">If one account is compromised, others remain secure</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tip-card">
+                            <div class="tip-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium mb-1">Change passwords regularly</h3>
+                                <p class="text-sm text-gray-400">Update important passwords every 3-6 months</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tip-card">
+                            <div class="tip-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium mb-1">Enable two-factor authentication</h3>
+                                <p class="text-sm text-gray-400">Add an extra layer of security beyond just passwords</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tip-card">
+                            <div class="tip-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-medium mb-1">Use a password manager</h3>
+                                <p class="text-sm text-gray-400">Securely store and manage all your complex passwords</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Password History & Features -->
+            <div>
+                <!-- Password History -->
+                <div class="password-generator-card mb-6">
+                    <div class="password-generator-card-header">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="password-generator-card-icon">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <div>
+                                    <h2 class="password-generator-card-title">Password History</h2>
+                                    <p class="password-generator-card-description">Recently generated passwords</p>
+                                </div>
+                            </div>
+                            <button id="clear-history-btn" class="btn-icon" title="Clear History">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="password-generator-card-body">
+                        <div id="password-history">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                <h3 class="font-medium mb-2">No passwords yet</h3>
+                                <p class="text-sm text-gray-400">Generated passwords will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Features -->
+                <div class="password-generator-card">
+                    <div class="password-generator-card-header">
+                        <div class="flex items-center">
+                            <div class="password-generator-card-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div>
+                                <h2 class="password-generator-card-title">Features</h2>
+                                <p class="password-generator-card-description">Why use SecurePass Pro</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="password-generator-card-body">
+                        <div class="feature-card mb-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h3 class="text-lg font-medium mb-2">Advanced Security</h3>
+                            <p class="text-sm text-gray-400">Cryptographically secure random generation for maximum protection</p>
+                        </div>
+                        
+                        <div class="feature-card mb-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-sliders-h"></i>
+                            </div>
+                            <h3 class="text-lg font-medium mb-2">Full Customization</h3>
+                            <p class="text-sm text-gray-400">Tailor passwords to meet specific requirements and preferences</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="text-lg font-medium mb-2">Strength Analysis</h3>
+                            <p class="text-sm text-gray-400">Detailed security metrics to evaluate password strength</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="password-generator-footer footer">
+            <p>© 2023 SecurePass Pro | Advanced Password Generator</p>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle text-green-500"></i>
+        <span id="notification-message">Password copied to clipboard!</span>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const passwordDisplay = document.getElementById('password-display');
+            const lengthSlider = document.getElementById('length-slider');
+            const lengthValue = document.getElementById('length-value');
+            const lengthTrack = document.getElementById('length-track');
+            const length<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9533bb6ae03447ad',t:'MTc1MDUxMTI3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
